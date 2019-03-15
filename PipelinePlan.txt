@@ -1,0 +1,53 @@
+What is the pipeline for?
+- A generic pipeline for analysis of case/control single cell RNA-seq datasets
+- Aim is to minimise the time we all spend doing routine work (i.e. clustering) and testing new algorithms
+- Should be able to start from sequence read data, and output publishable graphs
+- Should be able to handle testing various clustering algorithms etc, then feeding those results along into the rest of the pipeline
+
+Data storage will need to be standardised for each dataset:
+   All FASTA + Count data + Mean expression + Specificity data kept in standardised folder/file structures etc
+   All count data should be packaged in Loom (Linarsson lab) and CDS (Trapnell lab) file structures to enable compatibility with common analysis software
+   Meta data (i.e. case / control, individual, batch etc) will need to be provided in a standardised manner
+   If bulk data is also available, a clear system should be used for matching each bulk to scRNAseq sample
+ 
+Basic functionality:
+
+  Clustering:
+     Run several methods for comparison
+     I think it is important that the methods be able to handle batch effects (i.e. DESC)
+     Others:
+      Ken Harris's clustering method [https://github.com/cortex-lab/Transcriptomics]
+      Monocle3's implementation of Louvain + DBSCAN as second level clustering
+      
+   Doublet handling:
+      SVM classification against clusters
+      There are some packages written by others, we could try them
+      
+   Visualisation:
+       Generate UMAP + tSNE + nbtSNE plots (coloured with respect to all phenoData variables, i.e. age, sex, individual, disease state)
+       nbtSNE code is here: https://github.com/cortex-lab/Transcriptomics
+       At some point we should setup LoomViewer: https://github.com/linnarsson-lab/loom-viewer
+   
+   Density changes in cases / controls:
+   
+   Differential expression in cases / controls:
+       Plot cell type densities against each phenoData variable
+   
+   GWAS integration
+       Testing of genetic influence of case / control associated changes
+       SumStats kept in seperate folder. LDSC + MAGMA automatically runs on new single cell datasets against available sumstats
+       
+   Latent variable calculation for each cluster + testing of changes in case / control
+   
+   Integration with bulk
+       To be decided. Optional for each run depending on whether bulk data is available. 
+       Could develop new EM algorithm or modify existing deconvolution methods, I.e. https://www.nature.com/articles/s41467-018-08023-x) to infer changes in cell type density
+       Generate psuedobulk using standard methods from the single cell. How does it compare to real bulk?
+
+Use Singularity (https://www.sylabs.io/docs/) for containerisation
+
+Use either Drake (https://github.com/ropensci/drake) or NextFlo (https://www.nextflow.io/) to manage pipeline
+    Examples of NextFlo pipelines:
+      - https://github.com/IARCbioinfo/IARC-nf
+      - http://campagnelab.org/software/nextflow-workbench/
+      - https://github.com/nf-core/rnaseq
